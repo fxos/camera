@@ -1,6 +1,6 @@
 {
-	"name": "Clock",
-	"description": "FxOS Clock",
+	"name": "Camera",
+	"description": "FxOS Camera",
 	"type": "privileged",
 	"launch_path": "/index.html",
 	"developer": {
@@ -8,6 +8,7 @@
 		"url": "https://github.com/fxos/"
 	},
 	"permissions": {
+		"camera": {}
 	},
 	"icons": {
 		"128": "/icons/icon_128.png"
