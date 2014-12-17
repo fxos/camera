@@ -1,4 +1,4 @@
-export default class Viewfinder {
+export default class CameraModel {
 	constructor() {
 		this.config = {
 			mode: 'picture',
@@ -10,20 +10,15 @@ export default class Viewfinder {
 		};
 	}
 
-	init() {
-		return new Promise((resolve, reject) => {
-			var instance = navigator.mozCameras.getListOfCameras()[0];
+	get() {
+		var instance = navigator.mozCameras.getListOfCameras()[0];
+		return new Promise(resolve => {
 			navigator.mozCameras.getCamera(instance, this.config).then(
 				params => {
 					this.configuration = params.configuration;
 					this.camera = params.camera;
-					resolve();
+					resolve(this);
 				});
 		});
-	}
-
-	render(videoEl) {
-		videoEl.mozSrcObject = this.camera;
-		videoEl.play();
 	}
 }

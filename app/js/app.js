@@ -1,6 +1,4 @@
-import Viewfinder from 'dist/viewfinder.js';
+import CaptureController from 'dist/controller/capture_controller.js';
 
-var videoEl = document.getElementById('viewfinder');
-var viewfinder = new Viewfinder();
-viewfinder.init()
-	.then(viewfinder.render.bind(viewfinder, videoEl));
+var captureController = new CaptureController();
+captureController.main();
