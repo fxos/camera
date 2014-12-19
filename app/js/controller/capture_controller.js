@@ -1,5 +1,5 @@
-import CameraModel from 'dist/model/camera_model.js';
-import CaptureView from 'dist/view/capture_view.js';
+import CameraModel from 'js/model/camera_model.js';
+import CaptureView from 'js/view/capture_view.js';
 
 export default class CaptureController {
 	constructor() {
