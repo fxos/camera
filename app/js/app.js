@@ -1,4 +1,12 @@
-import CaptureController from 'js/controller/capture_controller.js';
+import ViewfinderController from 'js/controllers/viewfinder.js';
+import ViewfinderView from 'js/views/viewfinder.js';
+import Configuration from 'js/models/configuration.js';
 
-var captureController = new CaptureController();
-captureController.main();
+var viewfinderController = new ViewfinderController({
+	view: new ViewfinderView({
+		el: document.getElementById('viewfinder-view')
+	}),
+	model: new Configuration()
+});
+
+console.log(viewfinderController);

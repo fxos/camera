@@ -1,6 +1,7 @@
 gulpfile.js
 .editorconfig
 .jshintrc
+app/js/components/
 dist/
 node_modules/
 .DS_Store

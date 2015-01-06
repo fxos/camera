@@ -1,0 +1,20 @@
+{
+	"name": "fxos-camera",
+	"version": "0.0.1",
+	"homepage": "https://github.com/fxos/camera",
+	"authors": [
+		"FxOS Developers <dev-gaia@lists.mozilla.com>"
+	],
+	"license": "MPL",
+	"ignore": [
+		"**/.*",
+		"!.jshintrc",
+		"node_modules",
+		"package.json",
+		"README.md"
+	],
+	"dependencies": {
+		"mvc": "fxos/mvc"
+	},
+	"devDependencies": {}
+}
