@@ -33,14 +33,19 @@ var template =
 </div>`;
 
 proto.play = function() {
+	this.playing = true;
+
 	this.getCamera().then((camera) => {
 		this.video.mozSrcObject = camera;
 	});
-
-	this.playing = true;
 };
 
 proto.stop = function() {
+	if (this.camera) {
+		this.camera.release();
+		delete this.camera;
+	}
+
 	this.video.mozSrcObject = null;
 	this.playing = false;
 };
@@ -121,10 +126,6 @@ proto.createdCallback = function() {
 	};
 
 	this.playing = false;
-
-	if (this.getAttribute('autoplay') !== null) {
-		this.play();
-	}
 
 	window.addEventListener('resize', () => updateDimensions(this));
 };

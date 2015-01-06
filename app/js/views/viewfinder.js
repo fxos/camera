@@ -28,12 +28,22 @@ export default class ViewfinderView extends View {
 		this.mode      = this.$('[data-action="mode"]');
 		this.thumbnail = this.$('.thumbnail');
 
+		this.camera.play();
+
 		this.controls.dataset.orientation = screen.mozOrientation;
 
 		this.on('click', 'button', (evt) => {
 			var action = this.controller[evt.target.dataset.action];
 			if (typeof action === 'function') {
 				action.call(this.controller);
+			}
+		});
+
+		document.addEventListener('visibilitychange', (evt) => {
+			if (document.hidden) {
+				this.camera.stop();
+			} else {
+				this.camera.play();
 			}
 		});
 
