@@ -1,0 +1,86 @@
+html {
+	font-family: "Fira Sans", sans-serif;
+	font-size: 10px;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+body {
+	width: 100%;
+	height: 100%;
+}
+
+#viewfinder-view {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+#viewfinder-view > fxos-camera {
+	width: 100%;
+	height: 100%;
+}
+
+#viewfinder-view > .controls {
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	position: absolute;
+}
+
+#viewfinder-view > .controls[data-orientation="portrait-primary"] {
+	flex-flow: row nowrap;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 8rem;
+}
+
+#viewfinder-view > .controls[data-orientation="portrait-secondary"] {
+	flex-flow: row-reverse nowrap;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 8rem;
+}
+
+#viewfinder-view > .controls[data-orientation="landscape-primary"] {
+	flex-flow: column-reverse nowrap;
+	right: 0;
+	bottom: 0;
+	width: 8rem;
+	height: 100%;
+}
+
+#viewfinder-view > .controls[data-orientation="landscape-secondary"] {
+	flex-flow: column nowrap;
+	bottom: 0;
+	left: 0;
+	width: 8rem;
+	height: 100%;
+}
+
+#viewfinder-view > .controls > button {
+	border: none;
+	border-radius: 50%;
+	padding: 0;
+	width: 6rem;
+	height: 6rem;
+}
+
+#viewfinder-view > .controls > button[data-action="preview"] {
+	background: none;
+	border: none;
+	position: relative;
+	overflow: hidden;
+}
+
+#viewfinder-view > .controls > button[data-action="preview"] > .thumbnail {
+	position: absolute;
+	top: 0;
+	left: 0;
+	max-width: 100%;
+}
