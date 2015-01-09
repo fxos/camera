@@ -39,6 +39,14 @@ export default class ViewfinderView extends View {
 			}
 		});
 
+		this.on('recordingstarted', 'fxos-camera', (evt) => {
+			this.controller.recordingStarted();
+		});
+
+		this.on('recordingstopped', 'fxos-camera', (evt) => {
+			this.controller.recordingStopped();
+		});
+
 		document.addEventListener('visibilitychange', (evt) => {
 			if (document.hidden) {
 				this.camera.stop();
@@ -56,6 +64,12 @@ export default class ViewfinderView extends View {
 		return template;
 	}
 
+	render() {
+		super();
+
+		this.el.appendChild(this.counterView.el);
+	}
+
 	setThumbnailImage(blob) {
 		if (this.thumbnail.src) {
 			URL.revokeObjectURL(this.thumbnail.src);
@@ -68,5 +82,12 @@ export default class ViewfinderView extends View {
 	setMode(mode) {
 		this.camera.setMode(mode);
 		this.mode.textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
+	}
+
+	setRecording(recording) {
+		this.preview.disabled = recording;
+		this.mode.disabled = recording;
+
+		this.capture.textContent = recording ? 'Stop' : 'Capture';
 	}
 }

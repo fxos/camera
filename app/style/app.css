@@ -69,6 +69,11 @@ body {
 	padding: 0;
 	width: 6rem;
 	height: 6rem;
+	transition: opacity 0.2s;
+}
+
+#viewfinder-view > .controls > button[disabled] {
+	opacity: 0;
 }
 
 #viewfinder-view > .controls > button[data-action="preview"] {
@@ -82,5 +87,69 @@ body {
 	position: absolute;
 	top: 0;
 	left: 0;
-	max-width: 100%;
+	width: 100%;
+	height: 100%;
+}
+
+#counter-view {
+	background-color: rgba(0, 0, 0, 0.5);
+	border-radius: 3rem;
+	box-sizing: padding-box;
+	color: #fff;
+	font-size: 2rem;
+	line-height: 1em;
+	position: absolute;
+	padding: 2rem;
+	width: 12rem;
+	height: 6rem;
+	transition: opacity 0.2s;
+}
+
+#counter-view.hidden {
+	opacity: 0;
+}
+
+#counter-view[data-orientation="portrait-primary"] {
+	text-align: right;
+	top: 2rem;
+	left: 2rem;
+}
+
+#counter-view[data-orientation="portrait-secondary"] {
+	text-align: left;
+	right: 2rem;
+	bottom: 2rem;
+}
+
+#counter-view[data-orientation="landscape-primary"] {
+	text-align: right;
+	bottom: 2rem;
+	left: 2rem;
+}
+
+#counter-view[data-orientation="landscape-secondary"] {
+	text-align: left;
+	top: 2rem;
+	right: 2rem;
+}
+
+#counter-view:before {
+	content: '';
+	background-color: #f00;
+	border-radius: 50%;
+	display: block;
+	position: absolute;
+	top: 2.2rem;
+	width: 1.6rem;
+	height: 1.6rem;
+}
+
+#counter-view[data-orientation="portrait-primary"]:before,
+#counter-view[data-orientation="landscape-primary"]:before {
+	left: 2.2rem;
+}
+
+#counter-view[data-orientation="portrait-secondary"]:before,
+#counter-view[data-orientation="landscape-secondary"]:before {
+	right: 2.2rem;
 }
