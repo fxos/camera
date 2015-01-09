@@ -1,8 +1,5 @@
-define(["exports", "js/lib/async_storage.js"], function (exports, _jsLibAsyncStorageJs) {
+define(["exports"], function (exports) {
   "use strict";
-
-  var asyncStorage = _jsLibAsyncStorageJs["default"];
-
 
   var DEFAULT_DCF_FILE_SEQUENCE = 1;
   var DEFAULT_DCF_DIRECTORY_SEQUENCE = 100;
@@ -32,22 +29,19 @@ define(["exports", "js/lib/async_storage.js"], function (exports, _jsLibAsyncSto
         return;
       }
 
-      asyncStorage.getItem(DCF_SEQUENCE_KEY, function (value) {
-        sequence = value || {
-          file: DEFAULT_DCF_FILE_SEQUENCE,
-          directory: DEFAULT_DCF_DIRECTORY_SEQUENCE
-        };
+      sequence = JSON.parse(localStorage.getItem(DCF_SEQUENCE_KEY)) || {
+        file: DEFAULT_DCF_FILE_SEQUENCE,
+        directory: DEFAULT_DCF_DIRECTORY_SEQUENCE
+      };
 
-        resolve(sequence);
-      });
+      resolve(sequence);
     });
   }
 
   function updateSequence() {
     return new Promise(function (resolve) {
-      asyncStorage.setItem(DCF_SEQUENCE_KEY, sequence, function () {
-        resolve(sequence);
-      });
+      localStorage.setItem(DCF_SEQUENCE_KEY, JSON.stringify(sequence));
+      resolve(sequence);
     });
   }
 

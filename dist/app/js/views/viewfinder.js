@@ -49,6 +49,14 @@ define(["exports", "components/mvc/dist/mvc.js", "js/elements/fxos_camera.js"], 
         }
       });
 
+      this.on("recordingstarted", "fxos-camera", function (evt) {
+        _this.controller.recordingStarted();
+      });
+
+      this.on("recordingstopped", "fxos-camera", function (evt) {
+        _this.controller.recordingStopped();
+      });
+
       document.addEventListener("visibilitychange", function (evt) {
         if (document.hidden) {
           _this.camera.stop();
@@ -66,6 +74,12 @@ define(["exports", "components/mvc/dist/mvc.js", "js/elements/fxos_camera.js"], 
       return template;
     };
 
+    ViewfinderView.prototype.render = function () {
+      View.prototype.render.call(this);
+
+      this.el.appendChild(this.counterView.el);
+    };
+
     ViewfinderView.prototype.setThumbnailImage = function (blob) {
       if (this.thumbnail.src) {
         URL.revokeObjectURL(this.thumbnail.src);
@@ -78,6 +92,13 @@ define(["exports", "components/mvc/dist/mvc.js", "js/elements/fxos_camera.js"], 
     ViewfinderView.prototype.setMode = function (mode) {
       this.camera.setMode(mode);
       this.mode.textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
+    };
+
+    ViewfinderView.prototype.setRecording = function (recording) {
+      this.preview.disabled = recording;
+      this.mode.disabled = recording;
+
+      this.capture.textContent = recording ? "Stop" : "Capture";
     };
 
     return ViewfinderView;

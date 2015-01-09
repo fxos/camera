@@ -92,12 +92,97 @@ define(["exports"], function (exports) {
       });
     };
 
-    proto.startRecording = function (deviceStorage, path) {};
+    proto.startRecording = function (deviceStorage, filename, maxFileSizeBytes) {
+      var _this5 = this;
+      return new Promise(function (resolve, reject) {
+        if (_this5.recording !== FXOSCamera.RECORDING_STOPPED) {
+          reject();
+          return;
+        }
 
-    proto.stopRecording = function () {};
+        _this5.recording = FXOSCamera.RECORDING_STARTING;
+
+        _this5.getCamera().then(function (camera) {
+          _this5.recordingSession = {
+            deviceStorage: deviceStorage,
+            filename: filename
+          };
+
+          _this5.configuration.maxFileSizeBytes = maxFileSizeBytes;
+
+          camera.startRecording(_this5.configuration, deviceStorage, filename).then(function () {
+            _this5.recording = FXOSCamera.RECORDING_STARTED;
+            _this5.dispatchEvent(new CustomEvent("recordingstarted"));
+            resolve();
+          })["catch"](function (error) {
+            delete _this5.recordingSession;
+            delete _this5.configuration.maxFileSizeBytes;
+
+            _this5.recording = FXOSCamera.RECORDING_STOPPED;
+            _this5.dispatchEvent(new CustomEvent("recordingstopped"));
+            reject(error);
+          });
+        });
+      });
+    };
+
+    proto.stopRecording = function () {
+      var _this6 = this;
+      return new Promise(function (resolve, reject) {
+        if (_this6.recording !== FXOSCamera.RECORDING_STARTED) {
+          reject();
+          return;
+        }
+
+        _this6.recording = FXOSCamera.RECORDING_STOPPING;
+
+        _this6.getCamera().then(function (camera) {
+          var deviceStorage = _this6.recordingSession.deviceStorage;
+          var filename = _this6.recordingSession.filename;
+
+          var onDeviceStorageChange = function (event) {
+            if (event.reason === "unavailable") {
+              deviceStorage.removeEventListener("change", onDeviceStorageChange);
+
+              _this6.recording = FXOSCamera.RECORDING_STOPPED;
+              _this6.dispatchEvent(new CustomEvent("recordingstopped"));
+              reject();
+              return;
+            }
+
+            if (event.reason !== "modified" || event.path.indexOf(filename) === -1) {
+              return;
+            }
+
+            deviceStorage.removeEventListener("change", onDeviceStorageChange);
+
+            var request = deviceStorage.get(filename);
+            request.onsuccess = function () {
+              var blob = request.result;
+
+              _this6.recording = FXOSCamera.RECORDING_STOPPED;
+              _this6.dispatchEvent(new CustomEvent("recordingstopped"));
+              resolve({
+                blob: blob,
+                filename: filename
+              });
+            };
+            request.onerror = function (error) {
+              _this6.recording = FXOSCamera.RECORDING_STOPPED;
+              _this6.dispatchEvent(new CustomEvent("recordingstopped"));
+              reject(error);
+            };
+          };
+
+          deviceStorage.addEventListener("change", onDeviceStorageChange);
+
+          camera.stopRecording();
+        });
+      });
+    };
 
     proto.createdCallback = function () {
-      var _this5 = this;
+      var _this7 = this;
       var shadow = this.createShadowRoot();
       shadow.innerHTML = template;
 
@@ -112,9 +197,10 @@ define(["exports"], function (exports) {
       };
 
       this.playing = false;
+      this.recording = FXOSCamera.RECORDING_STOPPED;
 
       window.addEventListener("resize", function () {
-        return updateDimensions(_this5);
+        return updateDimensions(_this7);
       });
     };
 
@@ -156,6 +242,11 @@ define(["exports"], function (exports) {
 
     FXOSCamera.MODE_PICTURE = "picture";
     FXOSCamera.MODE_VIDEO = "video";
+
+    FXOSCamera.RECORDING_STARTING = "starting";
+    FXOSCamera.RECORDING_STARTED = "started";
+    FXOSCamera.RECORDING_STOPPING = "stopping";
+    FXOSCamera.RECORDING_STOPPED = "stopped";
 
     window.FXOSCamera = FXOSCamera;
   })(window);
