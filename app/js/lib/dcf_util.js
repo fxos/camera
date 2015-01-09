@@ -1,5 +1,3 @@
-import asyncStorage from 'js/lib/async_storage.js';
-
 const DEFAULT_DCF_FILE_SEQUENCE = 1;
 const DEFAULT_DCF_DIRECTORY_SEQUENCE = 100;
 
@@ -28,22 +26,19 @@ function getSequence() {
 			return;
 		}
 
-		asyncStorage.getItem(DCF_SEQUENCE_KEY, (value) => {
-			sequence = value || {
-				file: DEFAULT_DCF_FILE_SEQUENCE,
-				directory: DEFAULT_DCF_DIRECTORY_SEQUENCE
-			};
+		sequence = JSON.parse(localStorage.getItem(DCF_SEQUENCE_KEY)) || {
+			file: DEFAULT_DCF_FILE_SEQUENCE,
+			directory: DEFAULT_DCF_DIRECTORY_SEQUENCE
+		};
 
-			resolve(sequence);
-		});
+		resolve(sequence);
 	});
 }
 
 function updateSequence() {
 	return new Promise((resolve) => {
-		asyncStorage.setItem(DCF_SEQUENCE_KEY, sequence, () => {
-			resolve(sequence);
-		});
+		localStorage.setItem(DCF_SEQUENCE_KEY, JSON.stringify(sequence));
+		resolve(sequence);
 	});
 }
 

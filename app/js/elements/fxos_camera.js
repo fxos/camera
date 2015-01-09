@@ -91,24 +91,107 @@ proto.takePicture = function() {
 		this.getCamera().then((camera) => {
 			this.configuration.dateTime = Date.now() / 1000;
 
-			camera.takePicture(this.configuration).then((blob) => {
-				delete this.configuration.dateTime;
+			camera.takePicture(this.configuration)
+				.then((blob) => {
+					delete this.configuration.dateTime;
 
-				camera.resumePreview();
-				resolve(blob);
-			}).catch((error) => {
-				reject(error);
-			});
+					camera.resumePreview();
+					resolve(blob);
+				})
+				.catch((error) => {
+					reject(error);
+				});
 		});
 	});
 };
 
-proto.startRecording = function(deviceStorage, path) {
+proto.startRecording = function(deviceStorage, filename, maxFileSizeBytes) {
+	return new Promise((resolve, reject) => {
+		if (this.recording !== FXOSCamera.RECORDING_STOPPED) {
+			reject();
+			return;
+		}
 
+		this.recording = FXOSCamera.RECORDING_STARTING;
+
+		this.getCamera().then((camera) => {
+			this.recordingSession = {
+				deviceStorage: deviceStorage,
+				filename: filename
+			};
+
+			this.configuration.maxFileSizeBytes = maxFileSizeBytes;
+
+			camera.startRecording(this.configuration, deviceStorage, filename)
+				.then(() => {
+					this.recording = FXOSCamera.RECORDING_STARTED;
+					this.dispatchEvent(new CustomEvent('recordingstarted'));
+					resolve();
+				})
+				.catch((error) => {
+					delete this.recordingSession;
+					delete this.configuration.maxFileSizeBytes;
+
+					this.recording = FXOSCamera.RECORDING_STOPPED;
+					this.dispatchEvent(new CustomEvent('recordingstopped'));
+					reject(error);
+				});
+		});
+	});
 };
 
 proto.stopRecording = function() {
+	return new Promise((resolve, reject) => {
+		if (this.recording !== FXOSCamera.RECORDING_STARTED) {
+			reject();
+			return;
+		}
 
+		this.recording = FXOSCamera.RECORDING_STOPPING;
+
+		this.getCamera().then((camera) => {
+			var deviceStorage = this.recordingSession.deviceStorage;
+			var filename = this.recordingSession.filename;
+
+			var onDeviceStorageChange = (event) => {
+				if (event.reason === 'unavailable') {
+					deviceStorage.removeEventListener('change', onDeviceStorageChange);
+
+					this.recording = FXOSCamera.RECORDING_STOPPED;
+					this.dispatchEvent(new CustomEvent('recordingstopped'));
+					reject();
+					return;
+				}
+
+				if (event.reason !== 'modified' || event.path.indexOf(filename) === -1) {
+					return;
+				}
+
+				deviceStorage.removeEventListener('change', onDeviceStorageChange);
+
+				var request = deviceStorage.get(filename);
+				request.onsuccess = () => {
+					var blob = request.result;
+
+					this.recording = FXOSCamera.RECORDING_STOPPED;
+					this.dispatchEvent(new CustomEvent('recordingstopped'));
+					resolve({
+						blob: blob,
+						filename: filename
+					});
+				};
+				request.onerror = (error) => {
+					this.recording = FXOSCamera.RECORDING_STOPPED;
+					this.dispatchEvent(new CustomEvent('recordingstopped'));
+					reject(error);
+				};
+			};
+
+			deviceStorage.addEventListener('change', onDeviceStorageChange);
+
+			camera.stopRecording();
+		});
+	});
 };
 
 proto.createdCallback = function() {
@@ -126,6 +209,7 @@ proto.createdCallback = function() {
 	};
 
 	this.playing = false;
+	this.recording = FXOSCamera.RECORDING_STOPPED;
 
 	window.addEventListener('resize', () => updateDimensions(this));
 };
@@ -168,6 +252,11 @@ var FXOSCamera = document.registerElement('fxos-camera', {
 
 FXOSCamera.MODE_PICTURE = 'picture';
 FXOSCamera.MODE_VIDEO   = 'video';
+
+FXOSCamera.RECORDING_STARTING = 'starting';
+FXOSCamera.RECORDING_STARTED  = 'started';
+FXOSCamera.RECORDING_STOPPING = 'stopping';
+FXOSCamera.RECORDING_STOPPED  = 'stopped';
 
 window.FXOSCamera = FXOSCamera;
 
